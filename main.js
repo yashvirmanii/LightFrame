@@ -7,8 +7,8 @@ function createWindow() {
   console.log('Creating main window...');
 
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -51,7 +51,9 @@ function createWindow() {
     mainWindow.show();
     // Ensure it stays on top
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
-    mainWindow.focus();
+
+    // Make window click-through (ignore mouse events)
+    mainWindow.setIgnoreMouseEvents(true, { forward: true });
 
     // Apply screenshot protection
     applyScreenshotProtection();
@@ -135,7 +137,6 @@ function createTray() {
           if (mainWindow) {
             mainWindow.show();
             mainWindow.setAlwaysOnTop(true, 'screen-saver');
-            mainWindow.focus();
           }
         }
       },
@@ -148,6 +149,17 @@ function createTray() {
         }
       },
       { type: 'separator' },
+      {
+        label: 'Toggle Click-Through (Ctrl+Shift+T)',
+        click: () => {
+          if (mainWindow) {
+            isClickThrough = !isClickThrough;
+            mainWindow.setIgnoreMouseEvents(isClickThrough, { forward: true });
+            mainWindow.webContents.send('click-through-status', isClickThrough);
+            console.log('Click-through mode:', isClickThrough ? 'ON' : 'OFF');
+          }
+        }
+      },
       {
         label: 'Toggle Always On Top',
         click: () => {
@@ -199,6 +211,9 @@ app.on('activate', () => {
   }
 });
 
+// Track click-through state
+let isClickThrough = true;
+
 // IPC handlers for window controls
 ipcMain.on('window-maximize', () => {
   if (mainWindow) {
@@ -213,5 +228,17 @@ ipcMain.on('window-maximize', () => {
 ipcMain.on('window-close', () => {
   if (mainWindow) {
     mainWindow.hide();
+  }
+});
+
+ipcMain.on('toggle-click-through', () => {
+  if (mainWindow) {
+    isClickThrough = !isClickThrough;
+    mainWindow.setIgnoreMouseEvents(isClickThrough, { forward: true });
+
+    // Send status back to renderer
+    mainWindow.webContents.send('click-through-status', isClickThrough);
+
+    console.log('Click-through mode:', isClickThrough ? 'ON' : 'OFF');
   }
 });

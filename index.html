@@ -12,7 +12,7 @@
         
         body {
             font-family: 'Consolas', 'Courier New', monospace;
-            background: rgba(45, 50, 59, 0.7); /* More transparent dark background */
+            background: rgba(45, 50, 59, 0.4); /* Much more transparent dark background */
             color: #ffffff;
             height: 100vh;
             overflow: hidden;
@@ -20,13 +20,13 @@
         }
         
         .title-bar {
-            background: rgba(45, 50, 59, 0.8);
+            background: rgba(45, 50, 59, 0.5);
             height: 30px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             -webkit-app-region: drag;
         }
         
@@ -68,11 +68,11 @@
         }
         
         .control-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .close-btn:hover {
-            background: #e81123;
+            background: rgba(232, 17, 35, 0.7);
         }
         
         .terminal-content {
@@ -137,16 +137,16 @@
         }
         
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.02);
         }
         
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 6px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
         }
     </style>
 </head>
@@ -183,9 +183,13 @@
             <div class="info-line">═══ LIGHTFRAME ACTIVE ═══</div>
             <div class="status-line">✓ Hidden from taskbar</div>
             <div class="status-line">✓ Always on top</div>
+            <div class="status-line" id="click-through-status">✓ Click-through mode: ON</div>
             <div class="status-line" id="screenshot-status">⏳ Configuring screenshot protection...</div>
             <div class="info-line">Platform: <span id="platform"></span></div>
             <div class="info-line">Time: <span id="time"></span></div>
+            <div class="info-line" style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
+                Press Ctrl+Shift+T to toggle click-through
+            </div>
         </div>
     </div>
 
@@ -267,6 +271,27 @@
             } else {
                 statusEl.innerHTML = '✓ Platform protection active';
                 statusEl.className = 'status-line';
+            }
+        });
+
+        // Listen for click-through status updates
+        ipcRenderer.on('click-through-status', (event, isClickThrough) => {
+            const statusEl = document.getElementById('click-through-status');
+            if (isClickThrough) {
+                statusEl.innerHTML = '✓ Click-through mode: ON';
+                statusEl.className = 'status-line';
+            } else {
+                statusEl.innerHTML = '⚠ Click-through mode: OFF';
+                statusEl.className = 'warning-line';
+            }
+        });
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', (event) => {
+            // Ctrl+Shift+T to toggle click-through
+            if (event.ctrlKey && event.shiftKey && event.key === 'T') {
+                event.preventDefault();
+                ipcRenderer.send('toggle-click-through');
             }
         });
 
