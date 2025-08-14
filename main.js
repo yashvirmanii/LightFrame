@@ -7,35 +7,31 @@ function createWindow() {
   console.log('Creating main window...');
 
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 800,
+    width: 900,
+    height: 650,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
     },
-    // Key properties to hide from taskbar and stay on top
-    skipTaskbar: true, // Hide from taskbar - this is the main setting
-    alwaysOnTop: true, // Stay on top of all other windows
+    // Initial settings for welcome screen (normal window)
+    skipTaskbar: false, // Show in taskbar initially
+    alwaysOnTop: false, // Not always on top initially
     show: false, // Don't show initially
-    minimizable: false, // Prevent minimize to taskbar
+    minimizable: true, // Allow minimize initially
     resizable: true, // Allow resizing
-    transparent: true, // Enable transparency
-    frame: false, // Remove window frame for custom styling
-    // Additional Windows-specific settings
-    ...(process.platform === 'win32' && {
-      // Use tool window style to avoid taskbar appearance
-      parent: null,
-      modal: false
-    })
+    transparent: false, // Not transparent initially
+    frame: true, // Show window frame initially
+    title: 'LightFrame',
+    icon: null // We can add icon later
   });
 
   // Create system tray
   createTray();
 
-  // Load the app content
-  console.log('Loading index.html...');
-  mainWindow.loadFile('index.html').catch(error => {
-    console.error('Failed to load index.html:', error);
+  // Load the welcome screen initially
+  console.log('Loading welcome.html...');
+  mainWindow.loadFile('welcome.html').catch(error => {
+    console.error('Failed to load welcome.html:', error);
   });
 
   // Handle window close - hide instead of closing
@@ -49,14 +45,7 @@ function createWindow() {
   // Show window after loading (since we set show: false initially)
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
-    // Ensure it stays on top
-    mainWindow.setAlwaysOnTop(true, 'screen-saver');
-
-    // Make window click-through (ignore mouse events)
-    mainWindow.setIgnoreMouseEvents(true, { forward: true });
-
-    // Apply screenshot protection
-    applyScreenshotProtection();
+    // Don't apply overlay settings yet - this is the welcome screen
   });
 
   return mainWindow;
@@ -211,8 +200,9 @@ app.on('activate', () => {
   }
 });
 
-// Track click-through state
-let isClickThrough = true;
+// Track click-through state and app mode
+let isClickThrough = false; // Start with click-through disabled for welcome screen
+let isOverlayMode = false; // Track if we're in overlay mode
 
 // IPC handlers for window controls
 ipcMain.on('window-maximize', () => {
@@ -232,7 +222,7 @@ ipcMain.on('window-close', () => {
 });
 
 ipcMain.on('toggle-click-through', () => {
-  if (mainWindow) {
+  if (mainWindow && isOverlayMode) {
     isClickThrough = !isClickThrough;
     mainWindow.setIgnoreMouseEvents(isClickThrough, { forward: true });
 
@@ -240,5 +230,70 @@ ipcMain.on('toggle-click-through', () => {
     mainWindow.webContents.send('click-through-status', isClickThrough);
 
     console.log('Click-through mode:', isClickThrough ? 'ON' : 'OFF');
+  }
+});
+
+ipcMain.on('start-overlay-mode', () => {
+  if (mainWindow) {
+    console.log('🚀 Starting overlay mode...');
+
+    // Switch to overlay mode
+    isOverlayMode = true;
+    isClickThrough = true;
+
+    // Get current window bounds
+    const currentBounds = mainWindow.getBounds();
+    console.log('Current window bounds:', currentBounds);
+
+    // Create new overlay window with transparent and frameless properties
+    const overlayWindow = new BrowserWindow({
+      x: currentBounds.x,
+      y: currentBounds.y,
+      width: currentBounds.width,
+      height: currentBounds.height,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false
+      },
+      skipTaskbar: true,
+      alwaysOnTop: true,
+      show: true, // Show immediately for debugging
+      minimizable: false,
+      resizable: true,
+      transparent: true,
+      frame: false,
+      title: 'LightFrame'
+    });
+
+    console.log('Created overlay window');
+
+    // Load the overlay interface
+    overlayWindow.loadFile('index.html').then(() => {
+      console.log('Overlay interface loaded successfully');
+
+      // Update the main window reference FIRST
+      const oldWindow = mainWindow;
+      mainWindow = overlayWindow;
+
+      // Apply overlay settings
+      overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+      overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+
+      console.log('✅ Overlay mode activated');
+
+      // Apply screenshot protection to the new window
+      applyScreenshotProtection();
+
+      // Close the old welcome window after a short delay
+      setTimeout(() => {
+        oldWindow.destroy();
+        console.log('Welcome window destroyed');
+      }, 500);
+
+    }).catch(error => {
+      console.error('❌ Failed to load overlay interface:', error);
+    });
+  } else {
+    console.error('❌ No main window found');
   }
 });
