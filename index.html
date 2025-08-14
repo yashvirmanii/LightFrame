@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LightFrame</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: rgba(45, 50, 59, 0.7); /* More transparent dark background */
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-app-region: drag; /* Make window draggable */
+        }
+        
+        .title-bar {
+            background: rgba(45, 50, 59, 0.8);
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-app-region: drag;
+        }
+        
+        .title-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .title-bar-icon {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" fill="%23ffffff"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        
+        .title-bar-text {
+            font-size: 12px;
+            color: #ffffff;
+        }
+        
+        .title-bar-controls {
+            display: flex;
+            gap: 2px;
+            -webkit-app-region: no-drag;
+        }
+        
+        .control-btn {
+            width: 45px;
+            height: 29px;
+            border: none;
+            background: transparent;
+            color: #ffffff;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .close-btn:hover {
+            background: #e81123;
+        }
+        
+        .terminal-content {
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+            height: calc(100vh - 30px);
+            overflow-y: auto;
+            -webkit-app-region: no-drag;
+        }
+        
+        .terminal-header {
+            margin-bottom: 10px;
+        }
+        
+        .prompt-line {
+            display: flex;
+            align-items: center;
+            margin: 2px 0;
+        }
+        
+        .prompt {
+            color: #ffffff;
+            margin-right: 5px;
+        }
+        
+        .cursor {
+            background: #ffffff;
+            width: 8px;
+            height: 16px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .status-line {
+            color: #00ff00;
+            margin: 5px 0;
+        }
+        
+        .warning-line {
+            color: #ffff00;
+            margin: 5px 0;
+        }
+        
+        .error-line {
+            color: #ff0000;
+            margin: 5px 0;
+        }
+        
+        .info-line {
+            color: #00ffff;
+            margin: 5px 0;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="title-bar">
+        <div class="title-bar-left">
+            <div class="title-bar-icon"></div>
+            <span class="title-bar-text">LightFrame</span>
+        </div>
+        <div class="title-bar-controls">
+            <button class="control-btn maximize-btn" onclick="maximizeWindow()">□</button>
+            <button class="control-btn close-btn" onclick="closeWindow()">×</button>
+        </div>
+    </div>
+    
+    <div class="terminal-content">
+        <div class="terminal-header">
+            <div>Microsoft Windows [Version 10.0.26100.4946]</div>
+            <div>(c) Microsoft Corporation. All rights reserved.</div>
+            <div style="margin-top: 10px;"></div>
+        </div>
+        
+        <div class="prompt-line">
+            <span class="prompt">C:\Users\yashv></span>
+            <span id="current-command"></span>
+            <span class="cursor"></span>
+        </div>
+        
+        <div id="output-area">
+            <div class="status-line" id="status">🔄 Initializing stealth protection...</div>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <div class="info-line">═══ LIGHTFRAME ACTIVE ═══</div>
+            <div class="status-line">✓ Hidden from taskbar</div>
+            <div class="status-line">✓ Always on top</div>
+            <div class="status-line" id="screenshot-status">⏳ Configuring screenshot protection...</div>
+            <div class="info-line">Platform: <span id="platform"></span></div>
+            <div class="info-line">Time: <span id="time"></span></div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        
+        // Window controls
+        function maximizeWindow() {
+            ipcRenderer.send('window-maximize');
+        }
+        
+        function closeWindow() {
+            ipcRenderer.send('window-close');
+        }
+        
+        // Display platform info
+        document.getElementById('platform').textContent = process.platform;
+        
+        // Update time every second
+        function updateTime() {
+            document.getElementById('time').textContent = new Date().toLocaleTimeString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Simulate typing effect
+        const commands = [
+            'lightframe.exe --initialize',
+            'Applying window protection...',
+            'Setting always-on-top mode...',
+            'Hiding from taskbar...'
+        ];
+        
+        let commandIndex = 0;
+        let charIndex = 0;
+        
+        function typeCommand() {
+            if (commandIndex < commands.length) {
+                const currentCmd = commands[commandIndex];
+                if (charIndex < currentCmd.length) {
+                    document.getElementById('current-command').textContent = currentCmd.substring(0, charIndex + 1);
+                    charIndex++;
+                    setTimeout(typeCommand, 50);
+                } else {
+                    setTimeout(() => {
+                        commandIndex++;
+                        charIndex = 0;
+                        if (commandIndex < commands.length) {
+                            // Add completed command to output
+                            const outputArea = document.getElementById('output-area');
+                            const newLine = document.createElement('div');
+                            newLine.innerHTML = `<span class="prompt">C:\\Users\\yashv></span> ${currentCmd}`;
+                            outputArea.appendChild(newLine);
+                            document.getElementById('current-command').textContent = '';
+                            setTimeout(typeCommand, 500);
+                        } else {
+                            document.getElementById('current-command').textContent = '';
+                        }
+                    }, 1000);
+                }
+            }
+        }
+        
+        // Start typing effect after a short delay
+        setTimeout(typeCommand, 1000);
+
+        // Listen for protection status updates
+        ipcRenderer.on('protection-status', (event, data) => {
+            const statusEl = document.getElementById('screenshot-status');
+            if (data.advanced) {
+                statusEl.innerHTML = '✓ Advanced screenshot protection active';
+                statusEl.className = 'status-line';
+            } else if (data.basic) {
+                statusEl.innerHTML = '✓ Basic screenshot protection active';
+                statusEl.className = 'status-line';
+            } else if (data.platform === 'win32') {
+                statusEl.innerHTML = '⚠ Limited screenshot protection';
+                statusEl.className = 'warning-line';
+            } else {
+                statusEl.innerHTML = '✓ Platform protection active';
+                statusEl.className = 'status-line';
+            }
+        });
+
+        // Fallback status update
+        setTimeout(() => {
+            const statusEl = document.getElementById('screenshot-status');
+            if (statusEl.innerHTML.includes('Configuring')) {
+                if (process.platform === 'win32') {
+                    statusEl.innerHTML = '⚠ Basic protection active';
+                    statusEl.className = 'warning-line';
+                } else {
+                    statusEl.innerHTML = '✓ Platform protection active';
+                    statusEl.className = 'status-line';
+                }
+            }
+        }, 5000);
+        
+        // Prevent context menu
+        document.addEventListener('contextmenu', e => e.preventDefault());
+    </script>
+</body>
+</html>
