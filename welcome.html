@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>LightFrame - Welcome</title>
@@ -9,78 +10,147 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b  25%, #334155 50%, #475569 75%, #64748b 100%);
             color: #ffffff;
             height: 100vh;
             overflow: hidden;
+            position: relative;
         }
         
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
         .header {
-            background: rgba(0, 0, 0, 0.2);
-            height: 60px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            height: 70px;
             display: flex;
             align-items: center;
-            padding: 0 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            justify-content: space-between;
+            padding: 0 30px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 10;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
         .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #ffffff;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            color: #1e40af;
-            font-weight: bold;
-        }
-        
-        .logo-text {
             font-size: 20px;
-            font-weight: 600;
+            color: #ffffff;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            font-size: 13px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
         .main-content {
             display: flex;
             height: calc(100vh - 60px);
         }
-        
+
         .sidebar {
-            width: 200px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 20px 0;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 250px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 30px 0;
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            position: relative;
+            z-index: 5;
         }
-        
+
         .sidebar-item {
-            padding: 12px 20px;
+            padding: 16px 30px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            font-size: 15px;
+            font-weight: 500;
+            margin: 4px 15px;
+            border-radius: 12px;
         }
-        
+
         .sidebar-item:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(5px);
         }
-        
+
         .sidebar-item.active {
-            background: rgba(255, 255, 255, 0.15);
-            border-right: 3px solid #ffffff;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.1));
+            border-left: 4px solid #3b82f6;
+            color: #93c5fd;
         }
         
+        .sidebar-icon {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
         .content-area {
             flex: 1;
             padding: 40px;
@@ -89,40 +159,54 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .welcome-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 60px 40px;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 50px 40px;
             text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 500px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            max-width: 600px;
             width: 100%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
         
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
         .welcome-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            background: linear-gradient(45deg, #ffffff, #e0e7ff);
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff, #3b82f6, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
         }
-        
+
         .welcome-subtitle {
             font-size: 18px;
             opacity: 0.9;
             margin-bottom: 32px;
             line-height: 1.6;
         }
-        
+
         .features-list {
             text-align: left;
             margin-bottom: 40px;
         }
-        
+
         .feature-item {
             display: flex;
             align-items: center;
@@ -130,7 +214,7 @@
             margin-bottom: 12px;
             font-size: 16px;
         }
-        
+
         .feature-icon {
             width: 20px;
             height: 20px;
@@ -142,7 +226,7 @@
             font-size: 12px;
             color: white;
         }
-        
+
         .start-button {
             background: linear-gradient(45deg, #10b981, #059669);
             color: white;
@@ -155,17 +239,56 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
         }
-        
+
         .start-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
             background: linear-gradient(45deg, #059669, #047857);
         }
-        
+
         .start-button:active {
             transform: translateY(0);
         }
-        
+
+        .start-button:disabled {
+            background: linear-gradient(45deg, #6b7280, #4b5563);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .start-button:disabled:hover {
+            transform: none;
+            box-shadow: 0 4px 20px rgba(107, 114, 128, 0.3);
+        }
+
+        .permission-button {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .permission-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(45deg, #2563eb, #1d4ed8);
+        }
+
+        .permission-button:disabled {
+            background: linear-gradient(45deg, #10b981, #059669);
+            cursor: default;
+        }
+
+        .permission-button:disabled:hover {
+            transform: none;
+        }
+
         .version-info {
             position: absolute;
             bottom: 20px;
@@ -173,7 +296,7 @@
             font-size: 12px;
             opacity: 0.6;
         }
-        
+
         .status-indicator {
             display: inline-block;
             width: 8px;
@@ -183,91 +306,522 @@
             margin-right: 8px;
             animation: pulse 2s infinite;
         }
-        
+
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        code {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: #93c5fd;
+        }
+        
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid #10b981;
+            color: #10b981;
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            color: #ef4444;
+        }
+        
+        .warning-message {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid #f59e0b;
+            color: #f59e0b;
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <div class="logo">
             <div class="logo-icon">L</div>
             <div class="logo-text">LightFrame</div>
         </div>
+        <div class="header-actions">
+            <div class="api-status" id="api-status">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="status-text">AI Offline</span>
+            </div>
+        </div>
     </div>
-    
+
     <div class="main-content">
         <div class="sidebar">
-            <div class="sidebar-item active">
-                <span>🏠</span> Home
+            <div class="sidebar-item active" onclick="showTab('home')">
+                <span class="sidebar-icon">🏠</span> Home
             </div>
-            <div class="sidebar-item">
-                <span>⚙️</span> Settings
+            <div class="sidebar-item" onclick="showTab('api-config')">
+                <span class="sidebar-icon">🤖</span> AI Setup
             </div>
-            <div class="sidebar-item">
-                <span>📊</span> Status
+            <div class="sidebar-item" onclick="showTab('settings')">
+                <span class="sidebar-icon">⚙️</span> Settings
             </div>
-            <div class="sidebar-item">
-                <span>❓</span> Help
+            <div class="sidebar-item" onclick="showTab('help')">
+                <span class="sidebar-icon">❓</span> Help
             </div>
         </div>
-        
+
         <div class="content-area">
-            <div class="welcome-card">
-                <h1 class="welcome-title">Welcome to LightFrame</h1>
-                <p class="welcome-subtitle">
-                    A transparent desktop overlay that stays on top while remaining invisible to screenshots and screen sharing.
-                </p>
-                
-                <div class="features-list">
-                    <div class="feature-item">
-                        <div class="feature-icon">✓</div>
-                        <span>Always on top overlay</span>
+            <!-- Home Tab -->
+            <div id="home-tab" class="tab-content active">
+                <div class="welcome-card">
+                    <h1 class="welcome-title">Welcome to LightFrame</h1>
+                    <p class="welcome-subtitle">
+                        Your AI-powered interview assistant with stealth overlay technology and intelligent chat support.
+                    </p>
+
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">🤖</div>
+                            <span>AI-powered chat assistant</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">👁️</div>
+                            <span>Invisible to screen sharing</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔒</div>
+                            <span>Screenshot protection</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚡</div>
+                            <span>Always on top overlay</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🎯</div>
+                            <span>Click-through transparency</span>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">✓</div>
-                        <span>Click-through transparency</span>
+
+                    <div style="margin: 25px 0; padding: 20px; background: rgba(16, 185, 129, 0.1); border-radius: 12px; border-left: 4px solid #10b981;">
+                        <div style="font-size: 15px; font-weight: 600; margin-bottom: 8px;">⌨️ Global Shortcuts:</div>
+                        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 4px;">• <code>Ctrl + Alt + M</code> - Quick Help</div>
+                        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 4px;">• <code>Ctrl + Alt + J</code> - System Status</div>
+                        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">• <code>Ctrl + Alt + K</code> - Focus Mode</div>
+                        <div style="font-size: 12px; opacity: 0.7;">Works even when the overlay is hidden or you're in other applications</div>
                     </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">✓</div>
-                        <span>Screenshot protection</span>
+
+                    <button class="start-button" onclick="startLightFrame()" id="start-btn">
+                        <span class="status-indicator"></span>
+                        Start AI Assistant
+                    </button>
+                </div>
+            </div>
+
+            <!-- API Configuration Tab -->
+            <div id="api-config-tab" class="tab-content">
+                <div class="welcome-card">
+                    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px; color: #3b82f6;">🤖 AI Configuration</h2>
+                    <p style="font-size: 16px; opacity: 0.9; margin-bottom: 30px; line-height: 1.6;">
+                        Configure your OpenAI API key to enable full AI chat functionality. Without an API key, the assistant will use offline responses.
+                    </p>
+
+                    <div style="text-align: left; margin-bottom: 30px;">
+                        <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">
+                            OpenAI API Key:
+                        </label>
+                        <input 
+                            type="password" 
+                            id="api-key-input" 
+                            placeholder="sk-..." 
+                            style="width: 100%; padding: 12px 16px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 8px; color: white; font-size: 14px; font-family: 'Consolas', monospace;"
+                        />
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px;">
+                            Your API key is stored locally and never shared. Get one at <a href="#" onclick="openOpenAILink()" style="color: #3b82f6;">platform.openai.com</a>
+                        </div>
                     </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">✓</div>
-                        <span>Hidden from taskbar</span>
+
+                    <div style="display: flex; gap: 12px; margin-bottom: 25px;">
+                        <button 
+                            class="permission-button" 
+                            onclick="testApiKey()" 
+                            id="test-api-btn"
+                            style="flex: 1;"
+                        >
+                            🧪 Test API Key
+                        </button>
+                        <button 
+                            class="permission-button" 
+                            onclick="saveApiKey()" 
+                            id="save-api-btn"
+                            style="flex: 1; background: linear-gradient(45deg, #10b981, #059669);"
+                        >
+                            💾 Save & Configure
+                        </button>
+                    </div>
+
+                    <div id="api-status-message" style="padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none;">
+                        <!-- Status messages will appear here -->
+                    </div>
+
+                    <div style="padding: 20px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border-left: 4px solid #3b82f6;">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #93c5fd;">💡 How to get an API key:</div>
+                        <div style="font-size: 13px; opacity: 0.9; line-height: 1.5;">
+                            1. Visit <strong>platform.openai.com</strong><br>
+                            2. Sign up or log in to your account<br>
+                            3. Go to API Keys section<br>
+                            4. Create a new secret key<br>
+                            5. Copy and paste it above
+                        </div>
                     </div>
                 </div>
-                
-                <button class="start-button" onclick="startLightFrame()">
-                    <span class="status-indicator"></span>
-                    Start LightFrame
-                </button>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <div class="welcome-card">
+                    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px; color: #3b82f6;">⚙️ Settings</h2>
+                    <p style="font-size: 16px; opacity: 0.9; margin-bottom: 30px;">
+                        Configure LightFrame behavior and appearance.
+                    </p>
+
+                    <div style="text-align: left;">
+                        <div style="margin-bottom: 25px; padding: 20px; background: rgba(15, 23, 42, 0.4); border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.2);">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #e2e8f0;">🎨 Appearance</h3>
+                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer;">
+                                <input type="checkbox" id="transparency-setting" checked style="width: 16px; height: 16px;">
+                                <span>Enable window transparency</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="always-on-top-setting" checked style="width: 16px; height: 16px;">
+                                <span>Always stay on top</span>
+                            </label>
+                        </div>
+
+                        <div style="margin-bottom: 25px; padding: 20px; background: rgba(15, 23, 42, 0.4); border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.2);">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #e2e8f0;">🔒 Privacy</h3>
+                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer;">
+                                <input type="checkbox" id="screenshot-protection-setting" checked style="width: 16px; height: 16px;">
+                                <span>Enable screenshot protection</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="taskbar-hide-setting" checked style="width: 16px; height: 16px;">
+                                <span>Hide from taskbar</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Tab -->
+            <div id="help-tab" class="tab-content">
+                <div class="welcome-card">
+                    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 20px; color: #3b82f6;">❓ Help & Support</h2>
+                    
+                    <div style="text-align: left;">
+                        <div style="margin-bottom: 25px;">
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #e2e8f0;">🚀 Getting Started</h3>
+                            <p style="font-size: 14px; line-height: 1.6; opacity: 0.9; margin-bottom: 15px;">
+                                LightFrame is designed to assist you during interviews and meetings by providing an AI chat interface that remains hidden from screen sharing and recording software.
+                            </p>
+                        </div>
+
+                        <div style="margin-bottom: 25px;">
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #e2e8f0;">⌨️ Keyboard Shortcuts</h3>
+                            <div style="font-family: 'Consolas', monospace; font-size: 13px; line-height: 1.8;">
+                                <div><code>Ctrl + Alt + M</code> - Quick help and tips</div>
+                                <div><code>Ctrl + Alt + J</code> - System status check</div>
+                                <div><code>Ctrl + Alt + K</code> - Focus mode activation</div>
+                                <div><code>Ctrl + Shift + T</code> - Toggle click-through mode</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 25px;">
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #e2e8f0;">🔧 Troubleshooting</h3>
+                            <div style="font-size: 14px; line-height: 1.6; opacity: 0.9;">
+                                <p style="margin-bottom: 10px;"><strong>App not staying on top:</strong> Check if other applications have focus-stealing behavior.</p>
+                                <p style="margin-bottom: 10px;"><strong>Global shortcuts not working:</strong> Ensure no other applications are using the same key combinations.</p>
+                                <p style="margin-bottom: 10px;"><strong>AI not responding:</strong> Configure your OpenAI API key in the AI Setup tab.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
+
     <div class="version-info">
         LightFrame v1.0.0
     </div>
 
     <script>
         const { ipcRenderer } = require('electron');
-        
+        let microphonePermissionGranted = false;
+
+        async function requestMicrophonePermission() {
+            const permissionBtn = document.getElementById('mic-permission-btn');
+            const permissionStatus = document.getElementById('permission-status');
+            const startBtn = document.getElementById('start-btn');
+
+            try {
+                permissionBtn.textContent = '🔄 Requesting permission...';
+                permissionBtn.disabled = true;
+                permissionStatus.textContent = 'Requesting microphone access...';
+                permissionStatus.style.color = '#fbbf24';
+
+                // Method 1: Try getUserMedia
+                let stream = null;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }
+                    });
+                    console.log('✅ getUserMedia successful');
+                } catch (getUserMediaError) {
+                    console.log('❌ getUserMedia failed:', getUserMediaError);
+
+                    // Method 2: Try with basic audio constraints
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        console.log('✅ Basic getUserMedia successful');
+                    } catch (basicError) {
+                        console.log('❌ Basic getUserMedia failed:', basicError);
+                        throw basicError;
+                    }
+                }
+
+                // Permission granted - stop the stream as we don't need it yet
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+
+                // Update UI
+                microphonePermissionGranted = true;
+                permissionBtn.textContent = '✅ Microphone Access Granted';
+                permissionBtn.style.background = 'linear-gradient(45deg, #10b981, #059669)';
+                permissionStatus.textContent = 'Microphone access granted successfully!';
+                permissionStatus.style.color = '#10b981';
+
+                // Enable start button
+                startBtn.disabled = false;
+                startBtn.style.opacity = '1';
+                startBtn.style.cursor = 'pointer';
+
+                console.log('✅ Microphone permission granted');
+
+            } catch (error) {
+                console.error('❌ Microphone permission denied:', error);
+
+                // Update UI for denied permission
+                permissionBtn.textContent = '🔄 Try Alternative Method';
+                permissionBtn.disabled = false;
+                permissionStatus.innerHTML = `
+                    <div style="color: #ef4444; margin-bottom: 8px;">Unable to access microphone automatically.</div>
+                    <div style="font-size: 12px; color: #94a3b8;">
+                        This may be due to system permissions. The app will still work, but transcription may be limited.
+                    </div>
+                    <div style="font-size: 12px; color: #3b82f6; margin-top: 8px;">
+                        You can proceed and grant permission when the overlay starts.
+                    </div>
+                `;
+
+                // Allow user to proceed anyway
+                setTimeout(() => {
+                    startBtn.disabled = false;
+                    startBtn.style.opacity = '1';
+                    startBtn.style.cursor = 'pointer';
+                    startBtn.textContent = 'Start Anyway (Limited Mode)';
+                }, 2000);
+            }
+        }
+
         function startLightFrame() {
-            // Send message to main process to switch to overlay mode
+            // No need to check microphone permission upfront
+            // It will be requested when user uses push-to-talk
             ipcRenderer.send('start-overlay-mode');
         }
-        
-        // Add some interactive effects
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
+
+        // Check if microphone permission is already granted on page load
+        async function checkExistingPermission() {
+            // Don't automatically request microphone access
+            // Just show the permission request UI
+            document.getElementById('permission-status').textContent = 'Microphone access will be requested when you use push-to-talk';
+            document.getElementById('permission-status').style.color = '#94a3b8';
+
+            // Enable start button immediately since we don't need permission upfront
+            const startBtn = document.getElementById('start-btn');
+            startBtn.disabled = false;
+            startBtn.style.opacity = '1';
+            startBtn.style.cursor = 'pointer';
+
+            // Hide permission button since we don't need it upfront
+            const permissionSection = document.getElementById('permission-section');
+            permissionSection.style.display = 'none';
+        }
+
+        // Check permission on page load
+        setTimeout(checkExistingPermission, 1000);
+
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
             });
-        });
+            
+            // Remove active class from all sidebar items
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked sidebar item
+            event.target.closest('.sidebar-item').classList.add('active');
+        }
+
+        // API Key management functions
+        async function testApiKey() {
+            const apiKey = document.getElementById('api-key-input').value.trim();
+            const testBtn = document.getElementById('test-api-btn');
+            const statusMessage = document.getElementById('api-status-message');
+            
+            if (!apiKey) {
+                showStatusMessage('Please enter an API key first.', 'error');
+                return;
+            }
+            
+            if (!apiKey.startsWith('sk-')) {
+                showStatusMessage('Invalid API key format. OpenAI keys start with "sk-".', 'error');
+                return;
+            }
+            
+            testBtn.textContent = '🔄 Testing...';
+            testBtn.disabled = true;
+            
+            try {
+                const result = await ipcRenderer.invoke('configure-api-key', apiKey);
+                
+                if (result.success) {
+                    showStatusMessage('✅ API key is valid and working!', 'success');
+                    updateApiStatus(true);
+                } else {
+                    showStatusMessage('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showStatusMessage('❌ Failed to test API key: ' + error.message, 'error');
+            }
+            
+            testBtn.textContent = '🧪 Test API Key';
+            testBtn.disabled = false;
+        }
+
+        async function saveApiKey() {
+            const apiKey = document.getElementById('api-key-input').value.trim();
+            const saveBtn = document.getElementById('save-api-btn');
+            
+            if (!apiKey) {
+                showStatusMessage('Please enter an API key first.', 'error');
+                return;
+            }
+            
+            saveBtn.textContent = '💾 Saving...';
+            saveBtn.disabled = true;
+            
+            try {
+                const result = await ipcRenderer.invoke('configure-api-key', apiKey);
+                
+                if (result.success) {
+                    showStatusMessage('✅ API key saved successfully! AI features are now enabled.', 'success');
+                    updateApiStatus(true);
+                    
+                    // Clear the input for security
+                    setTimeout(() => {
+                        document.getElementById('api-key-input').value = '';
+                    }, 2000);
+                } else {
+                    showStatusMessage('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showStatusMessage('❌ Failed to save API key: ' + error.message, 'error');
+            }
+            
+            saveBtn.textContent = '💾 Save & Configure';
+            saveBtn.disabled = false;
+        }
+
+        function showStatusMessage(message, type) {
+            const statusMessage = document.getElementById('api-status-message');
+            statusMessage.style.display = 'block';
+            statusMessage.className = type + '-message';
+            statusMessage.textContent = message;
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function updateApiStatus(isConnected) {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            
+            if (isConnected) {
+                statusDot.classList.add('connected');
+                statusText.textContent = 'AI Connected';
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = 'AI Offline';
+            }
+        }
+
+        function openOpenAILink() {
+            require('electron').shell.openExternal('https://platform.openai.com/api-keys');
+        }
+
+        // Check API status on load
+        async function checkApiStatus() {
+            try {
+                const status = await ipcRenderer.invoke('get-api-status');
+                updateApiStatus(status.hasApiKey);
+                
+                if (status.isConfigured && !status.hasApiKey) {
+                    showStatusMessage('⚠️ API key is configured but not working. Please check your key.', 'warning');
+                }
+            } catch (error) {
+                console.log('Could not check API status:', error);
+            }
+        }
+
+        // Initialize
+        setTimeout(() => {
+            checkApiStatus();
+            checkExistingPermission();
+        }, 1000);
     </script>
 </body>
+
 </html>

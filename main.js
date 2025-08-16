@@ -1,4 +1,5 @@
-const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain } = require('electron');
+const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, globalShortcut } = require('electron');
+const OpenAI = require('openai');
 const WindowPrivacy = require('./window-privacy-simple');
 let tray = null;
 let mainWindow = null;
@@ -11,7 +12,11 @@ function createWindow() {
     height: 650,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      enableRemoteModule: true,
+      webSecurity: false, // Allow microphone access
+      allowRunningInsecureContent: true,
+      experimentalFeatures: true
     },
     // Initial settings for welcome screen (normal window)
     skipTaskbar: false, // Show in taskbar initially
@@ -175,9 +180,60 @@ function createTray() {
 }
 
 
+// Enable media access command line switches
+app.commandLine.appendSwitch('enable-media-stream');
+app.commandLine.appendSwitch('enable-usermedia-screen-capturing');
+app.commandLine.appendSwitch('allow-http-screen-capture');
+app.commandLine.appendSwitch('auto-select-desktop-capture-source', 'LightFrame');
+app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
+app.commandLine.appendSwitch('ignore-certificate-errors');
+app.commandLine.appendSwitch('disable-web-security');
+
 app.whenReady().then(() => {
   console.log('Electron app is ready, creating window...');
+
+  // Handle microphone permission requests
+  const { session } = require('electron');
+
+  // Set permission request handler
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    console.log('Permission requested:', permission);
+    if (permission === 'microphone' || permission === 'media') {
+      console.log('✅ Granting microphone permission');
+      callback(true);
+    } else {
+      console.log('❌ Denying permission:', permission);
+      callback(false);
+    }
+  });
+
+  // Set permission check handler
+  session.defaultSession.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
+    console.log('Permission check:', permission, requestingOrigin);
+    if (permission === 'microphone' || permission === 'media') {
+      console.log('✅ Allowing microphone permission check');
+      return true;
+    }
+    return false;
+  });
+
+  // Set device permission handler
+  session.defaultSession.setDevicePermissionHandler((details) => {
+    console.log('Device permission requested:', details);
+    if (details.deviceType === 'microphone') {
+      console.log('✅ Allowing microphone device');
+      return true;
+    }
+    return false;
+  });
+
   createWindow();
+
+  // Initialize AI
+  initializeAI();
+
+  // Register global shortcuts
+  registerGlobalShortcuts();
 }).catch(error => {
   console.error('Error during app startup:', error);
 });
@@ -192,6 +248,10 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   app.isQuiting = true;
+
+  // Unregister all global shortcuts
+  globalShortcut.unregisterAll();
+  console.log('🧹 Global shortcuts unregistered');
 });
 
 app.on('activate', () => {
@@ -220,6 +280,281 @@ ipcMain.on('window-close', () => {
     mainWindow.hide();
   }
 });
+
+// AI Chat Integration
+let openai = null;
+
+// Initialize OpenAI with multiple API key sources
+function initializeAI() {
+  try {
+    // Try multiple sources for API key
+    const apiKey = 
+      process.env.OPENAI_API_KEY || 
+      process.env.OPENAI_KEY || 
+      getStoredApiKey() || 
+      'your-api-key-here';
+    
+    if (apiKey && apiKey !== 'your-api-key-here' && apiKey.startsWith('sk-')) {
+      openai = new OpenAI({
+        apiKey: apiKey
+      });
+      console.log('✅ OpenAI initialized with API key');
+      
+      // Test the API key
+      testApiKey();
+    } else {
+      console.log('⚠️ OpenAI API key not set - using mock responses');
+      console.log('💡 To use real AI responses:');
+      console.log('   1. Set OPENAI_API_KEY environment variable');
+      console.log('   2. Or use the API key configuration in the app');
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize OpenAI:', error);
+  }
+}
+
+// Get stored API key from local storage
+function getStoredApiKey() {
+  try {
+    const { app } = require('electron');
+    const path = require('path');
+    const fs = require('fs');
+    
+    const configPath = path.join(app.getPath('userData'), 'config.json');
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      return config.openaiApiKey;
+    }
+  } catch (error) {
+    console.log('No stored API key found');
+  }
+  return null;
+}
+
+// Store API key locally
+function storeApiKey(apiKey) {
+  try {
+    const { app } = require('electron');
+    const path = require('path');
+    const fs = require('fs');
+    
+    const configPath = path.join(app.getPath('userData'), 'config.json');
+    const config = fs.existsSync(configPath) ? 
+      JSON.parse(fs.readFileSync(configPath, 'utf8')) : {};
+    
+    config.openaiApiKey = apiKey;
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+    
+    console.log('✅ API key stored successfully');
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to store API key:', error);
+    return false;
+  }
+}
+
+// Test API key validity
+async function testApiKey() {
+  if (!openai) return false;
+  
+  try {
+    await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: 'Hello' }],
+      max_tokens: 5
+    });
+    console.log('✅ API key is valid');
+    return true;
+  } catch (error) {
+    console.error('❌ API key test failed:', error.message);
+    openai = null; // Fall back to mock responses
+    return false;
+  }
+}
+
+// Handle AI chat requests
+ipcMain.handle('chat-with-ai', async (event, message, chatHistory) => {
+  try {
+    console.log('💬 AI chat request:', message);
+    
+    if (!openai) {
+      // Mock response when OpenAI is not configured
+      return generateMockResponse(message);
+    }
+    
+    // Prepare messages for OpenAI
+    const messages = [
+      {
+        role: 'system',
+        content: `You are an AI assistant integrated into LightFrame, a transparent overlay application designed to help users during interviews and meetings. You should:
+        
+        - Be helpful, concise, and professional
+        - Provide interview tips, coding help, or general assistance
+        - Keep responses brief but informative (2-4 sentences usually)
+        - Be encouraging and supportive
+        - Help with technical questions, interview preparation, or productivity
+        - Use emojis sparingly but appropriately
+        - Format code snippets with backticks when relevant
+        
+        The user is likely in an interview or meeting context, so be mindful of that. Provide actionable advice.`
+      },
+      ...chatHistory.slice(-10), // Last 10 messages for context
+      { role: 'user', content: message }
+    ];
+    
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: messages,
+      max_tokens: 300,
+      temperature: 0.7
+    });
+    
+    const response = completion.choices[0].message.content;
+    console.log('🤖 AI response:', response);
+    
+    return response;
+    
+  } catch (error) {
+    console.error('❌ AI chat error:', error);
+    
+    // If API key is invalid, fall back to mock responses
+    if (error.message.includes('API key') || error.message.includes('authentication')) {
+      openai = null;
+      return generateMockResponse(message) + '\n\n⚠️ API key issue detected - switched to offline mode.';
+    }
+    
+    return 'Sorry, I encountered an error. Please try again or check your API configuration.';
+  }
+});
+
+// Handle API key configuration
+ipcMain.handle('configure-api-key', async (event, apiKey) => {
+  try {
+    if (!apiKey || !apiKey.startsWith('sk-')) {
+      return { success: false, message: 'Invalid API key format' };
+    }
+    
+    // Test the API key first
+    const testOpenAI = new OpenAI({ apiKey: apiKey });
+    await testOpenAI.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: 'Hello' }],
+      max_tokens: 5
+    });
+    
+    // If test passes, store and use the key
+    const stored = storeApiKey(apiKey);
+    if (stored) {
+      openai = testOpenAI;
+      return { success: true, message: 'API key configured successfully!' };
+    } else {
+      return { success: false, message: 'Failed to store API key' };
+    }
+    
+  } catch (error) {
+    console.error('API key configuration error:', error);
+    return { 
+      success: false, 
+      message: error.message.includes('API key') ? 
+        'Invalid API key' : 
+        'Failed to validate API key'
+    };
+  }
+});
+
+// Get API key status
+ipcMain.handle('get-api-status', async (event) => {
+  return {
+    hasApiKey: !!openai,
+    isConfigured: !!getStoredApiKey(),
+    usingMockResponses: !openai
+  };
+});
+
+function generateMockResponse(message) {
+  const mockResponses = {
+    'hello': '👋 Hello! I\'m your AI assistant. How can I help you today?',
+    'help': '🆘 I can help with interview questions, coding problems, or general assistance. What do you need?',
+    'interview': '💼 For interviews: stay calm, think out loud, ask clarifying questions, and remember - they want you to succeed!',
+    'coding': '💻 For coding questions: break down the problem, consider edge cases, explain your approach, and don\'t forget to test!',
+    'nervous': '😌 It\'s normal to feel nervous! Take deep breaths, remember your preparation, and focus on showing your problem-solving process.',
+    'default': '🤖 I\'m here to help! You can ask me about interview tips, coding questions, or anything else you need assistance with.'
+  };
+  
+  const lowerMessage = message.toLowerCase();
+  
+  for (const [key, response] of Object.entries(mockResponses)) {
+    if (lowerMessage.includes(key)) {
+      return response;
+    }
+  }
+  
+  return mockResponses.default;
+}
+
+// Function to register global shortcuts
+function registerGlobalShortcuts() {
+  console.log('🎹 Registering global shortcuts...');
+
+  try {
+    // Right Ctrl + M
+    globalShortcut.register('CommandOrControl+Right+M', () => {
+      console.log('🔥 Global shortcut pressed: Right Ctrl + M');
+      if (mainWindow && isOverlayMode) {
+        mainWindow.webContents.send('shortcut-pressed', 'Right Ctrl + M');
+      }
+    });
+
+    // Right Ctrl + K for push-to-talk (we need a different approach for hold-to-listen)
+    // Using a library for better key detection
+    console.log('⚠️ Right Ctrl + K push-to-talk will be handled via IPC');
+
+    // Right Ctrl + J
+    globalShortcut.register('CommandOrControl+Right+J', () => {
+      console.log('🔥 Global shortcut pressed: Right Ctrl + J');
+      if (mainWindow && isOverlayMode) {
+        mainWindow.webContents.send('shortcut-pressed', 'Right Ctrl + J');
+      }
+    });
+
+    // Alternative shortcuts (in case Right modifier doesn't work)
+    // Ctrl + Alt + M
+    globalShortcut.register('CommandOrControl+Alt+M', () => {
+      console.log('🔥 Global shortcut pressed: Ctrl + Alt + M');
+      if (mainWindow && isOverlayMode) {
+        mainWindow.webContents.send('shortcut-pressed', 'Ctrl + Alt + M');
+      }
+    });
+
+    // Ctrl + Alt + K
+    globalShortcut.register('CommandOrControl+Alt+K', () => {
+      console.log('🔥 Global shortcut pressed: Ctrl + Alt + K');
+      if (mainWindow && isOverlayMode) {
+        mainWindow.webContents.send('shortcut-pressed', 'Ctrl + Alt + K');
+      }
+    });
+
+    // Ctrl + Alt + J
+    globalShortcut.register('CommandOrControl+Alt+J', () => {
+      console.log('🔥 Global shortcut pressed: Ctrl + Alt + J');
+      if (mainWindow && isOverlayMode) {
+        mainWindow.webContents.send('shortcut-pressed', 'Ctrl + Alt + J');
+      }
+    });
+
+    console.log('✅ Global shortcuts registered successfully');
+    console.log('📋 Available shortcuts:');
+    console.log('   - Right Ctrl + M');
+    console.log('   - Right Ctrl + K');
+    console.log('   - Right Ctrl + J');
+    console.log('   - Ctrl + Alt + M (fallback)');
+    console.log('   - Ctrl + Alt + K (fallback)');
+    console.log('   - Ctrl + Alt + J (fallback)');
+
+  } catch (error) {
+    console.error('❌ Failed to register global shortcuts:', error);
+  }
+}
 
 ipcMain.on('toggle-click-through', () => {
   if (mainWindow && isOverlayMode) {

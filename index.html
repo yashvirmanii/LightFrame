@@ -11,22 +11,40 @@
         }
         
         body {
-            font-family: 'Consolas', 'Courier New', monospace;
-            background: rgba(45, 50, 59, 0.4); /* Much more transparent dark background */
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+            backdrop-filter: blur(20px);
             color: #ffffff;
             height: 100vh;
             overflow: hidden;
-            -webkit-app-region: drag; /* Make window draggable */
+            -webkit-app-region: drag;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
         
         .title-bar {
-            background: rgba(45, 50, 59, 0.5);
-            height: 30px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0 15px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
             -webkit-app-region: drag;
         }
         
@@ -75,14 +93,28 @@
             background: rgba(232, 17, 35, 0.7);
         }
         
-        .terminal-content {
-            padding: 10px;
+        .main-content {
+            padding: 20px;
             font-size: 14px;
-            line-height: 1.4;
-            height: calc(100vh - 30px);
+            line-height: 1.5;
+            height: calc(100vh - 35px);
             overflow-y: auto;
             -webkit-app-region: no-drag;
+            position: relative;
+            z-index: 1;
         }
+        
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+
         
         .terminal-header {
             margin-bottom: 10px;
@@ -112,23 +144,137 @@
         }
         
         .status-line {
-            color: #00ff00;
-            margin: 5px 0;
+            color: #10b981;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
         }
         
         .warning-line {
-            color: #ffff00;
-            margin: 5px 0;
+            color: #f59e0b;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
         }
         
         .error-line {
-            color: #ff0000;
-            margin: 5px 0;
+            color: #ef4444;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
         }
         
         .info-line {
-            color: #00ffff;
-            margin: 5px 0;
+            color: #3b82f6;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        .section-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        #transcription-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.4;
+        }
+        
+        #current-speech {
+            color: #ffff00 !important;
+            font-style: italic;
+            border-left: 3px solid #ffff00;
+            padding-left: 10px;
+        }
+        
+        .transcription-entry {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes flash {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); background: rgba(0, 255, 0, 0.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .typing-dots {
+            animation: typing 1.5s infinite;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+        
+        #chat-input:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        #send-button:hover {
+            background: linear-gradient(45deg, #059669, #047857);
+            transform: translateY(-1px);
+        }
+        
+        #chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #chat-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+        
+        #chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        
+        #chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
         
         /* Scrollbar styling */
@@ -162,33 +308,83 @@
         </div>
     </div>
     
-    <div class="terminal-content">
-        <div class="terminal-header">
-            <div>Microsoft Windows [Version 10.0.26100.4946]</div>
-            <div>(c) Microsoft Corporation. All rights reserved.</div>
-            <div style="margin-top: 10px;"></div>
+    <div class="main-content">
+        <!-- Status Panel -->
+        <div class="glass-panel">
+            <div class="section-header">
+                <span>🛡️</span>
+                <span>INTERVIEW ASSISTANT</span>
+            </div>
+            <div class="status-line">
+                <span>✓</span>
+                <span>Hidden from taskbar</span>
+            </div>
+            <div class="status-line">
+                <span>✓</span>
+                <span>Always on top</span>
+            </div>
+            <div class="status-line" id="click-through-status">
+                <span>✓</span>
+                <span>Click-through mode: ON</span>
+            </div>
+            <div class="status-line" id="screenshot-status">
+                <span>⏳</span>
+                <span>Configuring screenshot protection...</span>
+            </div>
         </div>
-        
-        <div class="prompt-line">
-            <span class="prompt">C:\Users\yashv></span>
-            <span id="current-command"></span>
-            <span class="cursor"></span>
+
+        <!-- AI Chat Interface -->
+        <div class="glass-panel">
+            <div class="section-header">
+                <span>🤖</span>
+                <span>AI ASSISTANT</span>
+            </div>
+            
+            <div id="chat-container" style="min-height: 400px; max-height: 500px; display: flex; flex-direction: column;">
+                <!-- Chat Messages -->
+                <div id="chat-messages" style="flex: 1; padding: 0; overflow-y: auto; max-height: 430px;">
+                    <div id="welcome-message" style="color: #3b82f6; font-size: 14px; text-align: center; opacity: 0.8; padding: 40px 20px;">
+                        🤖 AI Assistant ready! Type your message below or use global shortcuts for quick actions.
+                        <div style="font-size: 12px; margin-top: 15px; opacity: 0.7;">
+                            <div>• <code>Ctrl+Alt+M</code> - Quick Help</div>
+                            <div>• <code>Ctrl+Alt+J</code> - System Status</div>
+                            <div>• <code>Ctrl+Alt+K</code> - Focus Mode</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Input -->
+                <div id="chat-input-container" style="border-top: 1px solid rgba(148, 163, 184, 0.2); padding: 20px 0 0 0; margin-top: 20px;">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <input 
+                            type="text" 
+                            id="chat-input" 
+                            placeholder="Ask me anything... (Press Enter to send)"
+                            style="flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 10px; padding: 14px 18px; color: #ffffff; font-size: 14px; font-family: inherit;"
+                        />
+                        <button 
+                            id="send-button" 
+                            onclick="sendMessage()"
+                            class="btn btn-success"
+                            style="padding: 14px 20px;"
+                        >
+                            <span>📤</span>
+                            <span>Send</span>
+                        </button>
+                    </div>
+                    <div style="margin-top: 12px; font-size: 12px; opacity: 0.7; color: #94a3b8; text-align: center;">
+                        💡 Ask for interview tips, coding help, or any assistance you need
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div id="output-area">
-            <div class="status-line" id="status">🔄 Initializing stealth protection...</div>
-        </div>
-        
-        <div style="margin-top: 20px;">
-            <div class="info-line">═══ LIGHTFRAME ACTIVE ═══</div>
-            <div class="status-line">✓ Hidden from taskbar</div>
-            <div class="status-line">✓ Always on top</div>
-            <div class="status-line" id="click-through-status">✓ Click-through mode: ON</div>
-            <div class="status-line" id="screenshot-status">⏳ Configuring screenshot protection...</div>
-            <div class="info-line">Platform: <span id="platform"></span></div>
-            <div class="info-line">Time: <span id="time"></span></div>
-            <div class="info-line" style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
-                Press Ctrl+Shift+T to toggle click-through
+
+        <!-- System Info -->
+        <div class="glass-panel" style="margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #94a3b8;">
+                <div>Platform: <span id="platform"></span></div>
+                <div>Time: <span id="time"></span></div>
+                <div>Shortcuts: Ctrl+Alt+M/J/K | Ctrl+Shift+T</div>
             </div>
         </div>
     </div>
@@ -286,6 +482,196 @@
             }
         });
 
+        // Chat functionality
+        let chatHistory = [];
+        let isAIResponding = false;
+
+        // Simplified functionality - no timer or notes
+
+        // Listen for global shortcut presses and integrate with chat
+        ipcRenderer.on('shortcut-pressed', (event, shortcut) => {
+            console.log('🎹 Global shortcut received:', shortcut);
+            
+            // Handle different shortcuts
+            switch(shortcut) {
+                case 'Right Ctrl + M':
+                case 'Ctrl + Alt + M':
+                    handleQuickAction('help', 'Quick Help requested via shortcut');
+                    break;
+                case 'Right Ctrl + J':
+                case 'Ctrl + Alt + J':
+                    handleQuickAction('status', 'System status requested via shortcut');
+                    break;
+                case 'Right Ctrl + K':
+                case 'Ctrl + Alt + K':
+                    handleQuickAction('focus', 'Focus mode activated via shortcut');
+                    break;
+                default:
+                    addChatMessage('system', `🎹 Shortcut pressed: ${shortcut}`, new Date().toLocaleTimeString());
+            }
+        });
+
+        function handleQuickAction(action, message) {
+            addChatMessage('user', message, new Date().toLocaleTimeString());
+            
+            let response = '';
+            switch(action) {
+                case 'help':
+                    response = '🆘 **Quick Help**\n\n• Use global shortcuts for quick actions\n• Type messages for AI assistance\n• App stays hidden from screen sharing\n• Press Ctrl+Shift+T to toggle click-through';
+                    break;
+                case 'status':
+                    response = '📊 **System Status**\n\n✅ Overlay active\n✅ Always on top\n✅ Screenshot protection\n✅ Global shortcuts working\n✅ AI assistant ready';
+                    break;
+                case 'focus':
+                    response = '🎯 **Focus Mode**\n\nI\'m here to help you stay focused during your interview or meeting. What would you like assistance with?';
+                    break;
+            }
+            
+            setTimeout(() => {
+                addChatMessage('ai', response, new Date().toLocaleTimeString());
+            }, 500);
+        }
+
+        function addChatMessage(sender, message, timestamp) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const welcomeMessage = document.getElementById('welcome-message');
+            
+            // Remove welcome message on first real message
+            if (welcomeMessage && (sender === 'user' || sender === 'ai')) {
+                welcomeMessage.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.style.marginBottom = '12px';
+            messageDiv.style.animation = 'fadeIn 0.3s ease-in';
+            
+            let senderColor, senderIcon, messageStyle;
+            
+            switch(sender) {
+                case 'user':
+                    senderColor = '#10b981';
+                    senderIcon = '👤';
+                    messageStyle = 'background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981;';
+                    break;
+                case 'ai':
+                    senderColor = '#3b82f6';
+                    senderIcon = '🤖';
+                    messageStyle = 'background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6;';
+                    break;
+                case 'system':
+                    senderColor = '#f59e0b';
+                    senderIcon = '⚡';
+                    messageStyle = 'background: rgba(245, 158, 11, 0.1); border-left: 3px solid #f59e0b;';
+                    break;
+            }
+            
+            messageDiv.innerHTML = `
+                <div style="${messageStyle} padding: 10px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <span style="font-size: 14px;">${senderIcon}</span>
+                        <span style="color: ${senderColor}; font-weight: 600; font-size: 13px;">
+                            ${sender === 'user' ? 'You' : sender === 'ai' ? 'AI Assistant' : 'System'}
+                        </span>
+                        <span style="color: #888; font-size: 11px;">${timestamp}</span>
+                    </div>
+                    <div style="color: #ffffff; font-size: 14px; line-height: 1.4; white-space: pre-wrap;">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message || isAIResponding) return;
+            
+            // Add user message
+            addChatMessage('user', message, new Date().toLocaleTimeString());
+            input.value = '';
+            
+            // Show AI is typing
+            isAIResponding = true;
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.style.marginBottom = '12px';
+            typingDiv.innerHTML = `
+                <div style="background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; padding: 10px; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 14px;">🤖</span>
+                        <span style="color: #3b82f6; font-weight: 600; font-size: 13px;">AI Assistant</span>
+                        <span style="color: #888; font-size: 11px;">typing...</span>
+                    </div>
+                    <div style="color: #ffffff; font-size: 14px; margin-top: 6px;">
+                        <span class="typing-dots">●●●</span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('chat-messages').appendChild(typingDiv);
+            document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+            
+            try {
+                // Send to AI via IPC
+                const response = await ipcRenderer.invoke('chat-with-ai', message, chatHistory);
+                
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                // Add AI response
+                addChatMessage('ai', response, new Date().toLocaleTimeString());
+                
+                // Update chat history
+                chatHistory.push({ role: 'user', content: message });
+                chatHistory.push({ role: 'assistant', content: response });
+                
+                // Keep only last 10 exchanges
+                if (chatHistory.length > 20) {
+                    chatHistory = chatHistory.slice(-20);
+                }
+                
+            } catch (error) {
+                console.error('AI chat error:', error);
+                
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                addChatMessage('system', '❌ Sorry, I encountered an error. Please try again.', new Date().toLocaleTimeString());
+            }
+            
+            isAIResponding = false;
+        }
+
+        // Enter key to send message
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Focus input when overlay loads
+        setTimeout(() => {
+            document.getElementById('chat-input').focus();
+        }, 1000);
+
+
+
+
+        
+        // Initialize audio capture only when needed (push-to-talk)
+        // Don't initialize automatically - wait for user action
+
         // Handle keyboard shortcuts
         document.addEventListener('keydown', (event) => {
             // Ctrl+Shift+T to toggle click-through
@@ -293,6 +679,8 @@
                 event.preventDefault();
                 ipcRenderer.send('toggle-click-through');
             }
+            
+
         });
 
         // Fallback status update
